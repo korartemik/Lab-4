@@ -33,7 +33,7 @@ public class PlotStatisticConsumer : IStatisticsConsumer
 
         foreach (var (point, radius) in barriers)
         {
-            _circleSeries.Points.Add(new ScatterPoint(point.X, point.Y, radius));
+            _circleSeries.Points.Add(new ScatterPoint(point.X, point.Y, 100*radius));
         }
 
         _linearBarSeries.ItemsSource = statistics

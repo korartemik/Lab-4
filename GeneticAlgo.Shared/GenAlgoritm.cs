@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using GeneticAlgo.Core.Models;
+using GeneticAlgo.Shared.Models;
 
-namespace GeneticAlgo.Core
+namespace GeneticAlgo.Shared
 {
     public class GenAlgoritm
     {
-        private string _path;
         private double fMax = 0;
         private double countBariers = 0;
         private double dt = 0;
@@ -66,18 +65,19 @@ namespace GeneticAlgo.Core
         {
             population = new List<Individual>();
             Random rand = new Random();
-            for(int i = 0; i< 100; i++)
+            for (int i = 0; i < 1000; i++)
             {
                 List<Point> pointsForNewIndivid = new List<Point>();
                 pointsForNewIndivid.Add(new Point(0, 0));
-                for(int j = 0; j < Math.Sqrt(2)/fMax + 2; j++)
+                for (int j = 0; j < Math.Sqrt(2) / fMax + 2; j++)
                 {
                     double f = rand.NextDouble() * fMax;
                     double teta = rand.NextDouble() * Math.PI * 0.5;
                     Point newPoint = new Point(Math.Max(Math.Min(pointsForNewIndivid.Last().X + f * Math.Cos(teta), 1), 0), Math.Max(Math.Min(pointsForNewIndivid.Last().Y + f * Math.Sin(teta), 1), 0));
+                    //Point newPoint = new Point(pointsForNewIndivid.Last().X + f * Math.Cos(teta), pointsForNewIndivid.Last().Y + f * Math.Sin(teta));
                     pointsForNewIndivid.Add(newPoint);
                 }
-                Individual individual = new Individual(pointsForNewIndivid, 0);
+                Individual individual = new Individual(pointsForNewIndivid);
                 individual.Survival = CountSurvival(individual.Points);
                 population.Add(individual);
             }
@@ -85,29 +85,29 @@ namespace GeneticAlgo.Core
 
         public void MergePopulation()
         {
-            List<Individual> newPopulation = new List<Individual>(100);
-            for(int i = 0; i<25; i++)
+            List<Individual> newPopulation = new List<Individual>();
+            for (int i = 0; i < 250; i++)
             {
                 newPopulation.Add(population.ElementAt(i));
             }
-            for (int i = 0; i < 25; i++)
+            for (int i = 0; i < 250; i++)
             {
-                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i+1)));
-                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i + 25)));
-                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i + 12)));
+                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i + 1)));
+                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i + 250)));
+                newPopulation.Add(MergeIndividual(population.ElementAt(i), population.ElementAt(i + 125)));
             }
             population = newPopulation;
         }
 
         public Individual MergeIndividual(Individual first, Individual second)
         {
-            List<Point> listPoints = new List<Point>(first.Points.Count);
-            for(int i = 0; i < first.Points.Count; i++)
+            List<Point> listPoints = new List<Point>();
+            for (int i = 0; i < first.Points.Count; i++)
             {
                 Point point = new Point(0.5 * (first.Points.ElementAt(i).X + second.Points.ElementAt(i).X), 0.5 * (first.Points.ElementAt(i).Y + second.Points.ElementAt(i).Y));
                 listPoints.Add(point);
             }
-            Individual individ = new Individual(listPoints, 0);
+            Individual individ = new Individual(listPoints);
             individ.Survival = CountSurvival(individ.Points);
             return individ;
         }
@@ -116,12 +116,12 @@ namespace GeneticAlgo.Core
             double surv = 1;
             surv = surv * distance(points.Last());
             //Console.WriteLine(distance(points.Last()) + " " + points.Last().X + " " + points.Last().Y);
-            foreach(BarrierCircle barrierCircle in BarrierCircles)
+            foreach (BarrierCircle barrierCircle in BarrierCircles)
             {
                 surv *= checkBarrier(points, barrierCircle);
             }
 
-            foreach(Point point in points)
+            foreach (Point point in points)
             {
                 surv *= CheckCoordinate(point);
             }
@@ -137,7 +137,7 @@ namespace GeneticAlgo.Core
         {
             double ans = 1;
             double fine = 0.4;
-            for(int i = 1; i<points.Count; i++)
+            for (int i = 1; i < points.Count; i++)
             {
                 Point pointPref = points.ElementAt(i - 1);
                 Point pointPres = points.ElementAt(i);
@@ -145,7 +145,7 @@ namespace GeneticAlgo.Core
                 double y1 = pointPref.Y;
                 double x2 = pointPres.X;
                 double y2 = pointPres.Y;
-                for(double x = x1; x < x2; x = x + 0.001)
+                for (double x = x1; x < x2; x = x + 0.001)
                 {
                     double y = x * (y1 - y2) / (x1 - x2) + y1 - x1 * ((y1 - y2) / (x1 - x2));
                     if ((x - barrier.Center.X) * (x - barrier.Center.X) + (y - barrier.Center.Y) * (y - barrier.Center.Y) <= barrier.Radius * barrier.Radius)
@@ -154,7 +154,7 @@ namespace GeneticAlgo.Core
                         break;
                     }
                 }
-                
+
             }
             if ((points.Last().X - barrier.Center.X) * (points.Last().X - barrier.Center.X) + (points.Last().Y - barrier.Center.Y) * (points.Last().Y - barrier.Center.Y) <= barrier.Radius * barrier.Radius)
             {
@@ -165,7 +165,7 @@ namespace GeneticAlgo.Core
 
         private double CheckCoordinate(Point point)
         {
-            if(point.X > 1 | point.X < 0 | point.Y < 0 | point.Y > 1)
+            if (point.X > 1 | point.X < 0 | point.Y < 0 | point.Y > 1)
             {
                 return 0.1;
             }
