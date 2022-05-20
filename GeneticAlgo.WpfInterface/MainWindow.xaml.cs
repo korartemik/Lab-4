@@ -33,7 +33,7 @@ namespace GeneticAlgo.WpfInterface
 
             Logger.Init();
 
-            _executionContext = new DummyExecutionContext(100, 10, 3);
+            _executionContext = new DummyExecutionContext(100, 10, 4);
             _configuration = new ExecutionConfiguration(IterationInterval, 10, 0);
 
             InitPlots();
